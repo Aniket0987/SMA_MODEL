@@ -1,0 +1,13 @@
+Create the necessary files:
+
+Save the code from the "Sentiment Analysis GUI" artifact as sentiment_gui.py
+Save the code from the "Model Training Script" artifact as train_model.py
+Save the code from the "Sentiment Analysis Application Launcher" artifact as app_launcher.py
+Save the code from the "Main Application Entry Point" artifact as main.py
+
+
+Install required dependencies:
+install numpy pandas nltk tensorflow scikit-learn
+
+Run the application:
+ main.py
