@@ -2,9 +2,7 @@ import tkinter as tk
 from tkinter import ttk, scrolledtext
 import pickle
 import numpy as np
-import pandas as pd
 import nltk
-from nltk.sentiment import SentimentIntensityAnalyzer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import load_model
 
@@ -14,10 +12,6 @@ class SentimentAnalysisApp:
         self.root.title("Financial News Sentiment Analyzer")
         self.root.geometry("800x600")
         self.root.configure(bg="#f0f0f0")
-        
-        # Initialize NLTK
-        nltk.download('vader_lexicon', quiet=True)
-        self.sia = SentimentIntensityAnalyzer()
         
         # Load model and tokenizer
         try:
@@ -85,21 +79,16 @@ class SentimentAnalysisApp:
         display_frame = ttk.Frame(results_frame)
         display_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
         
-        # VADER Score
-        ttk.Label(display_frame, text="VADER Score:").grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
-        self.vader_score_var = tk.StringVar()
-        ttk.Label(display_frame, textvariable=self.vader_score_var).grid(row=0, column=1, sticky=tk.W, padx=5, pady=5)
-        
         # Model Prediction
-        ttk.Label(display_frame, text="Model Prediction:").grid(row=1, column=0, sticky=tk.W, padx=5, pady=5)
+        ttk.Label(display_frame, text="Model Prediction:").grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
         self.prediction_var = tk.StringVar()
         self.prediction_label = ttk.Label(display_frame, textvariable=self.prediction_var, font=("Arial", 12, "bold"))
-        self.prediction_label.grid(row=1, column=1, sticky=tk.W, padx=5, pady=5)
+        self.prediction_label.grid(row=0, column=1, sticky=tk.W, padx=5, pady=5)
         
         # Confidence Score
-        ttk.Label(display_frame, text="Confidence:").grid(row=2, column=0, sticky=tk.W, padx=5, pady=5)
+        ttk.Label(display_frame, text="Confidence:").grid(row=1, column=0, sticky=tk.W, padx=5, pady=5)
         self.confidence_var = tk.StringVar()
-        ttk.Label(display_frame, textvariable=self.confidence_var).grid(row=2, column=1, sticky=tk.W, padx=5, pady=5)
+        ttk.Label(display_frame, textvariable=self.confidence_var).grid(row=1, column=1, sticky=tk.W, padx=5, pady=5)
         
         # Status bar
         self.status_var = tk.StringVar()
@@ -125,15 +114,12 @@ class SentimentAnalysisApp:
         # Combine text
         text = f"{title} {description}"
         
-        # Get VADER score
-        vader_score = self.sia.polarity_scores(text)['compound']
-        self.vader_score_var.set(f"{vader_score:.4f}")
-        
         # Predict using the model
         try:
             sequence = self.tokenizer.texts_to_sequences([text])
             padded_sequence = pad_sequences(sequence, maxlen=self.MAX_SEQUENCE_LENGTH)
-            prediction = self.model.predict([padded_sequence, np.array([vader_score])])
+            # If model still expects VADER score input, use dummy value (e.g., 0.0)
+            prediction = self.model.predict([padded_sequence, np.array([0.0])])
             
             # Get prediction class and confidence
             pred_class = np.argmax(prediction)
@@ -162,7 +148,6 @@ class SentimentAnalysisApp:
     def clear_inputs(self):
         self.title_entry.delete(0, tk.END)
         self.desc_text.delete("1.0", tk.END)
-        self.vader_score_var.set("")
         self.prediction_var.set("")
         self.confidence_var.set("")
         self.update_prediction_display("")
